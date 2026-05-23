@@ -1,0 +1,123 @@
+# CI/CD Pipeline with Live Monitoring Dashboard
+## Build Log — Progress So Far
+
+**Project Name:** `aws-cicd-monitor`  
+**Stack:** Python Flask → GitHub Actions → AWS EC2 + CloudWatch + SNS  
+**Goal:** Every `git push` triggers build → test → deploy → monitor → alert
+
+---
+
+## ✅ Phase 1 — The Flask App (COMPLETE)
+
+Created 3 files and pushed to GitHub:
+
+**`app.py`** — minimal Flask app with two routes:
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return {"status": "ok", "message": "Hello from CI/CD pipeline!"}
+
+@app.route("/health")
+def health():
+    return {"status": "healthy"}, 200
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+```
+
+**`test_app.py`** — two pytest tests, one per route:
+```python
+from app import app
+
+def test_home():
+    client = app.test_client()
+    res = client.get("/")
+    assert res.status_code == 200
+
+def test_health():
+    client = app.test_client()
+    res = client.get("/health")
+    assert res.status_code == 200
+```
+
+**`requirements.txt`**
+```
+flask
+pytest
+```
+
+**Tests verified locally:**
+```
+test_app.py::test_home   PASSED
+test_app.py::test_health PASSED
+2 passed in 0.20s
+```
+
+---
+
+## ✅ Phase 2 — AWS EC2 Setup (COMPLETE)
+
+### EC2 Instance
+- **Name:** `cicd-server`
+- **AMI:** Amazon Linux 2023
+- **Instance type:** t3.micro (free tier)
+- **Key pair:** `cicd-key.pem`
+- **Public IP:** `3.235.10.169`
+- **Security group ports open:** 22 (SSH), 80 (HTTP), 5000 (app)
+
+### Server Setup (via SSH)
+Connected to server:
+```bash
+ssh -i "cicd-key.pem" ec2-user@3.235.10.169
+```
+
+Installed dependencies:
+```bash
+sudo yum update -y
+sudo yum install python3 python3-pip git -y
+pip3 install flask gunicorn
+mkdir ~/app
+```
+
+**Verified versions:**
+- Python 3.9.25 ✅
+- Gunicorn 23.0.0 ✅
+
+### GitHub Secrets Added
+| Secret | Value |
+|--------|-------|
+| `EC2_HOST` | `3.235.10.169` |
+| `EC2_SSH_KEY` | Contents of `cicd-key.pem` |
+
+---
+
+## 🔜 Phase 3 — GitHub Actions Pipeline (NEXT)
+
+Create `.github/workflows/deploy.yml` to automate:
+- Run tests on every push
+- Deploy to EC2 if tests pass
+
+---
+
+## 🔜 Phase 4 — CloudWatch Monitoring + SNS Alerts
+
+- CPU usage alarm via CloudWatch
+- Email alerts via SNS
+
+---
+
+## 🔜 Phase 5 — Live Status Dashboard
+
+- Simple HTML page hosted on GitHub Pages
+- Auto-pings `/health` endpoint every 30 seconds
+
+---
+
+## 🔜 Phase 6 — README + Architecture Diagram
+
+- Architecture diagram (GitHub → Actions → EC2 → CloudWatch → SNS)
+- CI badge
+- Project write-up
