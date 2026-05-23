@@ -93,6 +93,23 @@
     .tag.ok { background: #1a7f37; color: #fff; }
     .tag.down { background: #b91c1c; color: #fff; }
     .history-ms { color: #8b949e; }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      padding: 20px;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+    .footer a {
+      color: #79c0ff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+    .footer a:hover {
+      color: #add8ff;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -171,5 +188,10 @@
     checkStatus();
     setInterval(checkStatus, 30000);
   </script>
+
+  <!-- Footer -->
+  <div class="footer">
+    For more details, <a href="https://github.com/jenishkhadka/aws-cicd-monitor" target="_blank">click here</a>
+  </div>
 </body>
 </html>
