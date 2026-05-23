@@ -35,3 +35,16 @@ jobs:
           ssh -i key.pem -o StrictHostKeyChecking=no ec2-user@$EC2_HOST \
             "pip3 install -r ~/app/requirements.txt && \
              sudo systemctl restart myapp"
+      - name: Update status
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          sleep 5
+          STATUS=$(curl -s --max-time 5 http://$EC2_HOST:5000/health || echo '{"status":"down"}')
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "{\"status\":\"$(echo $STATUS | grep -o 'healthy' || echo 'down')\",\"timestamp\":\"$TIMESTAMP\"}" > status.json
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add status.json
+          git diff --staged --quiet || git commit -m "Update status [skip ci]"
+          git push
