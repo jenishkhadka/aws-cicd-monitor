@@ -32,7 +32,13 @@ jobs:
           chmod 600 key.pem
           scp -i key.pem -o StrictHostKeyChecking=no \
             app.py requirements.txt ec2-user@$EC2_HOST:~/app/
-          ssh -i key.pem -o StrictHostKeyChecking=no ec2-user@$EC2_HOST \
-            "cd ~/app && pip3 install -r requirements.txt && \
-             pkill gunicorn || true && \
-             setsid gunicorn -w 2 -b 0.0.0.0:5000 app:app > app.log 2>&1 < /dev/null &"
+          ssh -i key.pem -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=10 \
+            ec2-user@$EC2_HOST \
+            "pip3 install -r ~/app/requirements.txt && \
+             pkill gunicorn || true && sleep 1 && \
+             nohup gunicorn -w 2 -b 0.0.0.0:5000 app:app \
+             --chdir /home/ec2-user/app \
+             --daemon \
+             --pid /tmp/gunicorn.pid \
+             --log-file /home/ec2-user/app/app.log"
