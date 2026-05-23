@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline Status Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    h1 { font-size: 2rem; margin-bottom: 30px; }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 16px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .pulse-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .pulse-dot.ok {
+      background: #2ea043;
+      box-shadow: 0 0 0 0 rgba(46,160,67,0.7);
+      animation: pulse-green 1.5s infinite;
+    }
+    .pulse-dot.down {
+      background: #f85149;
+      box-shadow: 0 0 0 0 rgba(248,81,73,0.7);
+      animation: pulse-red 1.5s infinite;
+    }
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(46,160,67,0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(46,160,67,0); }
+      100% { box-shadow: 0 0 0 0 rgba(46,160,67,0); }
+    }
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 0 0 rgba(248,81,73,0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(248,81,73,0); }
+      100% { box-shadow: 0 0 0 0 rgba(248,81,73,0); }
+    }
+
+    #status-text { font-size: 1.4rem; font-weight: bold; }
+    #response-time { color: #8b949e; font-size: 0.9rem; margin-top: 4px; }
+    #timestamp { color: #8b949e; font-size: 0.85rem; margin-top: 8px; }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge-row span { font-size: 0.9rem; color: #8b949e; }
+
+    .history-title {
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 0.85rem;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .tag {
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .tag.ok { background: #1a7f37; color: #fff; }
+    .tag.down { background: #b91c1c; color: #fff; }
+    .history-ms { color: #8b949e; }
+  </style>
+</head>
+<body>
+  <h1> CI/CD Pipeline Dashboard</h1>
+
+  <!-- Status Card -->
+  <div class="card">
+    <div class="status-row">
+      <div class="pulse-dot" id="pulse-dot"></div>
+      <div id="status-text">Checking...</div>
+    </div>
+    <div id="response-time">Response time: —</div>
+    <div id="timestamp">Last checked: —</div>
+  </div>
+
+  <!-- Pipeline Badge Card -->
+  <div class="card">
+    <div class="history-title">Pipeline Status</div>
+    <div class="badge-row">
+      <img id="badge" src="https://github.com/jenishkhadka/aws-cicd-monitor/actions/workflows/deploy.yml/badge.svg" alt="Pipeline badge" style="height:20px;">
+      <span>Last GitHub Actions run</span>
+    </div>
+  </div>
+
+  <!-- History Card -->
+  <div class="card">
+    <div class="history-title">Check History</div>
+    <div id="history"></div>
+  </div>
+
+  <script>
+    const history = [];
+
+    async function checkStatus() {
+      const dot = document.getElementById("pulse-dot");
+      const statusText = document.getElementById("status-text");
+      const responseTimeEl = document.getElementById("response-time");
+      const timestampEl = document.getElementById("timestamp");
+      const historyEl = document.getElementById("history");
+
+      const start = Date.now();
+      const time = new Date().toLocaleTimeString();
+
+      try {
+        const res = await fetch("http://3.235.10.169:5000/health");;
+        const ms = Date.now() - start;
+        const data = await res.json();
+
+        dot.className = "pulse-dot ok";
+        statusText.textContent = "✅ Server is HEALTHY";
+        responseTimeEl.textContent = "Response time: " + ms + "ms";
+
+        history.unshift({ status: "ok", time, ms });
+      } catch {
+        const ms = Date.now() - start;
+        dot.className = "pulse-dot down";
+        statusText.textContent = "❌ Server is DOWN";
+        responseTimeEl.textContent = "Response time: —";
+
+        history.unshift({ status: "down", time, ms: null });
+      }
+
+      timestampEl.textContent = "Last checked: " + time;
+
+      if (history.length > 5) history.pop();
+      historyEl.innerHTML = history.map(h => `
+        <div class="history-item">
+          <span>${h.time}</span>
+          <span class="history-ms">${h.ms ? h.ms + "ms" : "—"}</span>
+          <span class="tag ${h.status}">${h.status === "ok" ? "HEALTHY" : "DOWN"}</span>
+        </div>
+      `).join("");
+    }
+
+    checkStatus();
+    setInterval(checkStatus, 30000);
+  </script>
+</body>
+</html>
