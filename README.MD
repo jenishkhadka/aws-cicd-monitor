@@ -10,15 +10,9 @@ A production-style DevOps project demonstrating the full software delivery lifec
 
 ## 🏗️ Architecture
 
-Developer → GitHub → GitHub Actions → AWS EC2
-↓
-Run Tests
-↓
-Deploy App
-↓
-Update Status Dashboard
-↓
-CloudWatch → SNS → Email Alert
+![Architecture](screenshots/architecture.png)
+
+
 
 ---
 
@@ -77,12 +71,27 @@ python -m pytest test_app.py -v
 ---
 
 ## 📁 Project Structure
+
+```
 aws-cicd-monitor/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml    # CI/CD pipeline
-├── app.py                # Flask application
-├── test_app.py           # Pytest tests
-├── requirements.txt      # Dependencies
-├── index.html            # Live status dashboard
-└── status.json           # Auto-updated server status
+│       └── deploy.yml        # CI/CD pipeline
+├── screenshots/
+│   ├── architecture.jpeg     # Architecture diagram
+│   └── ...                   # Deployment screenshots
+├── app.py                    # Flask application
+├── test_app.py               # Pytest tests
+├── requirements.txt          # Dependencies
+├── index.html                # Live status dashboard
+├── status.json               # Auto-updated server status
+└── AWS-DEPLOYMENT-GUIDE.md   # Step-by-step deployment guide
+```
+
+---
+
+## 📖 Deployment Guide
+
+For a full step-by-step walkthrough of how this was built — including AWS setup, EC2 configuration, GitHub Actions, CloudWatch, and SNS — see the **[AWS Deployment Guide](AWS-DEPLOYMENT-GUIDE.md)**.
+
+> ⚠️ Live demo may be offline to avoid AWS charges. See architecture and pipeline for full context.
