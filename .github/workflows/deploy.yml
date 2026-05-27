@@ -51,3 +51,13 @@ jobs:
           git add status.json
           git diff --staged --quiet || git commit -m "Update status [skip ci]"
           git push
+      - name: Update status on failure
+        if: failure()
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "{\"status\":\"down\",\"timestamp\":\"$TIMESTAMP\"}" > status.json
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add status.json
+          git diff --staged --quiet || git commit -m "Update status [skip ci]"
+          git push
