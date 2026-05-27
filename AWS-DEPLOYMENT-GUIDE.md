@@ -214,7 +214,7 @@ After deploy, verify the app is live:
 ![Select Metric](screenshots/cloudwatch-metric.png)
 ![Configure Actions](screenshots/cloudwatch-actions.png)
 ![CloudWatch Alarm](screenshots/cloudwatch-alarm.png)
-
+![Gmail Notification](screenshots/image.png)
 ---
 
 ## Phase 5 — Live Status Dashboard
