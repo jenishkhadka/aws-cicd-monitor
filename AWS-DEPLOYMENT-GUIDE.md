@@ -57,7 +57,7 @@ pip3 install flask gunicorn flask-cors
 mkdir ~/app
 ```
 
-![Packages Installed](screenshots/packages-installed.png)
+
 
 **Verified versions:**
 - Python 3.9.25
@@ -212,7 +212,7 @@ After deploy, verify the app is live:
 5. Name: `high-cpu-alert`
 
 ![Select Metric](screenshots/cloudwatch-metric.png)
-![Configure Actions](screenshots/cloudwatch-actions.png)
+
 ![CloudWatch Alarm](screenshots/cloudwatch-alarm.png)
 ![Gmail Notification](screenshots/image.png)
 ---
@@ -221,14 +221,14 @@ After deploy, verify the app is live:
 
 Hosted on GitHub Pages at:
 ```
-https://YOUR_GITHUB_USERNAME.github.io/aws-cicd-monitor
+https://jenishkhadka.github.io/aws-cicd-monitor
 ```
 
 Features:
-- 🟢 Animated pulse dot showing server status
-- ⚡ Response time display
-- ✅ GitHub Actions pipeline badge
-- 📋 Check history (last 5 checks)
+-  Animated pulse dot showing server status
+-  Response time display
+-  GitHub Actions pipeline badge
+-  Check history (last 5 checks)
 
 Enable GitHub Pages: repo Settings → Pages → Branch: main → / (root) → Save
 

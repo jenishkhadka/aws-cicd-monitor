@@ -1,10 +1,9 @@
-# 🚀 AWS CI/CD Pipeline with Live Monitoring Dashboard
-
+#  AWS CI/CD Pipeline with Live Monitoring Dashboard
 ![CI/CD Pipeline](https://github.com/jenishkhadka/aws-cicd-monitor/actions/workflows/deploy.yml/badge.svg)
 
-A production-style DevOps project demonstrating the full software delivery lifecycle — every `git push` automatically tests, deploys, and monitors a live Flask application on AWS.
+A production-style DevOps project demonstrating the full software delivery lifecycle — every `git push` automatically tests, deploys, and monitors a live Flask application on AWS. Built entirely from scratch on a Windows machine using SSH to configure a remote Linux server.
 
-**[🔴 Live Dashboard](https://jenishkhadka.github.io/aws-cicd-monitor)**
+**[🟢 Live Dashboard](https://jenishkhadka.github.io/aws-cicd-monitor)**
 
 ---
 
@@ -12,7 +11,7 @@ A production-style DevOps project demonstrating the full software delivery lifec
 
 ![Architecture](screenshots/architecture.png)
 
-
+A developer pushes code to GitHub, which triggers GitHub Actions to run tests and deploy to AWS EC2 via SSH. The Flask app runs on EC2 under Gunicorn and systemd. CloudWatch monitors CPU usage and fires an SNS email alert if it exceeds 80%. After each deployment, the pipeline writes the server status to `status.json`, which the GitHub Pages dashboard reads to display live health and check history.
 
 ---
 
@@ -78,7 +77,7 @@ aws-cicd-monitor/
 │   └── workflows/
 │       └── deploy.yml        # CI/CD pipeline
 ├── screenshots/
-│   ├── architecture.jpeg     # Architecture diagram
+│   ├── architecture.png      # Architecture diagram
 │   └── ...                   # Deployment screenshots
 ├── app.py                    # Flask application
 ├── test_app.py               # Pytest tests
@@ -94,4 +93,4 @@ aws-cicd-monitor/
 
 For a full step-by-step walkthrough of how this was built — including AWS setup, EC2 configuration, GitHub Actions, CloudWatch, and SNS — see the **[AWS Deployment Guide](AWS-DEPLOYMENT-GUIDE.md)**.
 
-> **Note:** The live dashboard reflects the status of the last successful deployment. To avoid AWS charges, the EC2 instance may not be running continuously.
+> **Note:** The EC2 instance may be stopped to stay within AWS free tier limits. The dashboard and deployment guide remain fully accessible.
