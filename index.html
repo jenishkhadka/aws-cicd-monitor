@@ -62,6 +62,7 @@
     #status-text { font-size: 1.4rem; font-weight: bold; }
     #response-time { color: #8b949e; font-size: 0.9rem; margin-top: 4px; }
     #uptime { color: #8b949e; font-size: 0.9rem; margin-top: 4px; }
+    #timestamp { color: #8b949e; font-size: 0.85rem; margin-top: 8px; }
     .badge-row {
       display: flex;
       align-items: center;
@@ -123,7 +124,7 @@
   </style>
 </head>
 <body>
-  <h1>CI/CD Pipeline Dashboard</h1>
+  <h1>🚀 CI/CD Pipeline Dashboard</h1>
 
   <!-- Status Card -->
   <div class="card">
@@ -133,6 +134,7 @@
     </div>
     <div id="response-time">Last deployed: —</div>
     <div id="uptime">Uptime: —</div>
+    <div id="timestamp">Last checked: —</div>
   </div>
 
   <!-- Pipeline Badge Card -->
@@ -187,6 +189,7 @@
       const statusText = document.getElementById("status-text");
       const responseTimeEl = document.getElementById("response-time");
       const uptimeEl = document.getElementById("uptime");
+      const timestampEl = document.getElementById("timestamp");
       const historyEl = document.getElementById("history");
       const badge = document.getElementById("custom-badge");
       const time = new Date().toLocaleTimeString();
@@ -224,10 +227,12 @@
         history.unshift({ status: "down", time });
       }
 
+      timestampEl.textContent = "Last checked: " + time;
       if (history.length > 5) history.pop();
       historyEl.innerHTML = history.map(h => `
         <div class="history-item">
-          <span>Checked at ${h.time}</span>
+          <span>${h.time}</span>
+          <span class="history-ms">—</span>
           <span class="tag ${h.status}">${h.status === "ok" ? "HEALTHY" : "DOWN"}</span>
         </div>
       `).join("");
@@ -254,9 +259,11 @@
     setInterval(checkStatus, 30000);
   </script>
 
-  <!-- Footer -->
+ <!-- Footer -->
   <div class="footer">
-    For more details, <a href="https://github.com/jenishkhadka/aws-cicd-monitor" target="_blank">Full Deployment Guide</a>
+    <a href="https://github.com/jenishkhadka/aws-cicd-monitor" target="_blank" style="display:inline-flex;align-items:center;gap:6px;">
+      Full Deployment Guide <span style="transition:transform 0.2s;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='translateX(0)'">→</span>
+    </a>
   </div>
 </body>
 </html>
