@@ -61,6 +61,7 @@
     }
     #status-text { font-size: 1.4rem; font-weight: bold; }
     #response-time { color: #8b949e; font-size: 0.9rem; margin-top: 4px; }
+    #uptime { color: #8b949e; font-size: 0.9rem; margin-top: 4px; }
     #timestamp { color: #8b949e; font-size: 0.85rem; margin-top: 8px; }
     .badge-row {
       display: flex;
@@ -93,6 +94,16 @@
     .tag.ok { background: #1a7f37; color: #fff; }
     .tag.down { background: #b91c1c; color: #fff; }
     .history-ms { color: #8b949e; }
+    .countdown {
+      text-align: center;
+      color: #8b949e;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+    .countdown span {
+      color: #79c0ff;
+      font-weight: bold;
+    }
     .footer {
       margin-top: 40px;
       text-align: center;
@@ -122,6 +133,7 @@
       <div id="status-text">Checking...</div>
     </div>
     <div id="response-time">Last deployed: —</div>
+    <div id="uptime">Uptime: —</div>
     <div id="timestamp">Last checked: —</div>
   </div>
 
@@ -129,7 +141,15 @@
   <div class="card">
     <div class="history-title">Pipeline Status</div>
     <div class="badge-row">
-      <img src="https://github.com/jenishkhadka/aws-cicd-monitor/actions/workflows/deploy.yml/badge.svg" alt="Pipeline badge" style="height:20px;">
+      <span id="custom-badge" style="
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        background: #6e7681;
+        color: #fff;
+      ">checking...</span>
       <span>Last GitHub Actions run</span>
     </div>
   </div>
@@ -140,37 +160,70 @@
     <div id="history"></div>
   </div>
 
+  <!-- Countdown -->
+  <div class="countdown">Next check in: <span id="countdown">30</span>s</div>
+
   <script>
     const history = [];
+    let deployedAt = null;
+    let countdownValue = 30;
+
+    function formatUptime(deployedTimestamp) {
+      const now = new Date();
+      const deployed = new Date(deployedTimestamp);
+      const diffMs = now - deployed;
+
+      const seconds = Math.floor(diffMs / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) return `${days}d ${hours % 24}h ${minutes % 60}m`;
+      if (hours > 0) return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+      if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+      return `${seconds}s`;
+    }
 
     async function checkStatus() {
       const dot = document.getElementById("pulse-dot");
       const statusText = document.getElementById("status-text");
       const responseTimeEl = document.getElementById("response-time");
+      const uptimeEl = document.getElementById("uptime");
       const timestampEl = document.getElementById("timestamp");
       const historyEl = document.getElementById("history");
+      const badge = document.getElementById("custom-badge");
       const time = new Date().toLocaleTimeString();
 
       try {
         const res = await fetch("./status.json?t=" + Date.now());
         const data = await res.json();
         const isHealthy = data.status === "healthy";
+        deployedAt = data.timestamp;
 
         if (isHealthy) {
           dot.className = "pulse-dot ok";
           statusText.textContent = "✅ Server is HEALTHY";
-          responseTimeEl.textContent = "Last deployed: " + new Date(data.timestamp).toLocaleTimeString();
+          responseTimeEl.textContent = "Last deployed: " + new Date(data.timestamp).toLocaleString();
+          uptimeEl.textContent = "Uptime: " + formatUptime(data.timestamp);
+          badge.textContent = "passing";
+          badge.style.background = "#238636";
           history.unshift({ status: "ok", time });
         } else {
           dot.className = "pulse-dot down";
           statusText.textContent = "❌ Server is DOWN";
-          responseTimeEl.textContent = "Last deployed: " + new Date(data.timestamp).toLocaleTimeString();
+          responseTimeEl.textContent = "Last deployed: " + new Date(data.timestamp).toLocaleString();
+          uptimeEl.textContent = "Uptime: —";
+          badge.textContent = "failing";
+          badge.style.background = "#b91c1c";
           history.unshift({ status: "down", time });
         }
       } catch {
         dot.className = "pulse-dot down";
         statusText.textContent = "❌ Status Unknown";
         responseTimeEl.textContent = "Could not read status.json";
+        uptimeEl.textContent = "Uptime: —";
+        badge.textContent = "unknown";
+        badge.style.background = "#6e7681";
         history.unshift({ status: "down", time });
       }
 
@@ -183,7 +236,24 @@
           <span class="tag ${h.status}">${h.status === "ok" ? "HEALTHY" : "DOWN"}</span>
         </div>
       `).join("");
+
+      countdownValue = 30;
     }
+
+    // Uptime ticker — updates every second
+    setInterval(() => {
+      if (deployedAt) {
+        const uptimeEl = document.getElementById("uptime");
+        uptimeEl.textContent = "Uptime: " + formatUptime(deployedAt);
+      }
+    }, 1000);
+
+    // Countdown ticker
+    setInterval(() => {
+      countdownValue--;
+      if (countdownValue < 0) countdownValue = 0;
+      document.getElementById("countdown").textContent = countdownValue;
+    }, 1000);
 
     checkStatus();
     setInterval(checkStatus, 30000);
