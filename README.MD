@@ -94,4 +94,4 @@ aws-cicd-monitor/
 
 For a full step-by-step walkthrough of how this was built — including AWS setup, EC2 configuration, GitHub Actions, CloudWatch, and SNS — see the **[AWS Deployment Guide](AWS-DEPLOYMENT-GUIDE.md)**.
 
-> ⚠️ Live demo may be offline to avoid AWS charges. See architecture and pipeline for full context.
+> **Note:** The live dashboard reflects the status of the last successful deployment. To avoid AWS charges, the EC2 instance may not be running continuously.
