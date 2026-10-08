@@ -8,17 +8,7 @@ A production-style DevOps project demonstrating the full software delivery lifec
 ---
 
 ## 🏗️ Architecture
-MedLens AI (final year project)
 
-What it is: A fully offline medical assistant that runs on a local LLM (BioMistral-7B via Ollama) with no cloud dependency
-Problem it solves: Works with low internet and low-spec hardware, which matters in places like Nepal
-6 modules: medical chat, medicine scanner, symptom checker, drug interaction checker, health report analyzer, medicine reminders
-RAG pipeline (two stages): SQLite keyword match, then FAISS vector search, to reduce hallucination
-Embedding model: all-MiniLM-L6-v2
-Medicine scanner: YOLOv8 + EasyOCR + OpenCV identify medicines from photos
-Data: 11,825 medicines and 31,169 vector embeddings indexed for offline lookup
-Tools: Python, Flask, LangChain, SQLite, FAISS, HTML/CSS/JavaScript
-Evaluation: ROUGE, BLEU, response time, OCR accuracy
 ![Architecture](screenshots/architecture.png)
 
 A developer pushes code to GitHub, which triggers GitHub Actions to run tests and deploy to AWS EC2 via SSH. The Flask app runs on EC2 under Gunicorn and systemd. CloudWatch monitors CPU usage and fires an SNS email alert if it exceeds 80%. After each deployment, the pipeline writes the server status to `status.json`, which the GitHub Pages dashboard reads to display live health and check history.
